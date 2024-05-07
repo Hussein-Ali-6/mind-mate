@@ -136,7 +136,6 @@ function Quiz() {
 
   const isCorrected = !!quiz.questions[0].userAnswer;
 
-  console.log(quiz);
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center">
@@ -291,6 +290,7 @@ function PreviousQuizzes() {
             </TableHeader>
             <TableBody>
               {quizzes.map((quiz) => {
+                console.log(quiz);
                 return (
                   <TableRow
                     key={quiz.id}

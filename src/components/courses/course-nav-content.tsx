@@ -8,14 +8,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Delete, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { createChapter } from "@/actions/chapter";
+import { createChapter, deleteChapter } from "@/actions/chapter";
 import { useFormStatus } from "react-dom";
 import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import Spinner from "../spinner";
+import { useRouter } from "next/navigation";
 
 type Props = {
   chapters: Pick<Chapter, "id" | "title">[];
@@ -25,7 +27,9 @@ type Props = {
 export default function CourseNavContent({ chapters, courseId }: Props) {
   const [isAdding, setIsAdding] = useState(false);
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const paramsChapterId = new URLSearchParams(searchParams).get("chapterId");
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -58,11 +62,11 @@ export default function CourseNavContent({ chapters, courseId }: Props) {
       </div>
       <ul className="flex flex-col gap-1 mt-3 w-full">
         {chapters.map((chapter) => (
-          <li key={chapter.id}>
+          <li key={chapter.id} className="group flex">
             <Link
               href={`${pathname}?chapterId=${chapter.id}`}
               className={cn(
-                " text-sm py-2 px-3 md:px-4 hover:text-primary block w-full",
+                " text-sm py-2 px-3 md:px-4 hover:text-primary block flex-1",
                 paramsChapterId === chapter.id
                   ? "text-blue-500 border-r-blue-500 bg-muted border-r-2 "
                   : "text-muted-foreground"
@@ -70,6 +74,23 @@ export default function CourseNavContent({ chapters, courseId }: Props) {
             >
               {chapter.title}
             </Link>
+            {!isDeleting ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mr-4 text-muted-foreground hidden group-hover:block"
+                onClick={async () => {
+                  setIsDeleting(true);
+                  const res = await deleteChapter(chapter.id);
+                  setIsDeleting(false);
+                  router.refresh();
+                }}
+              >
+                <Trash className="size-4" />
+              </Button>
+            ) : (
+              <Spinner />
+            )}
           </li>
         ))}
         {isAdding && (

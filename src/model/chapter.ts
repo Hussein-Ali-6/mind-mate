@@ -50,3 +50,19 @@ export async function createChapter(title: string, courseId: string) {
     return null;
   }
 }
+
+export async function deleteChapterById(chapterId: string, userId: string) {
+  try {
+    const chapter = await prisma.chapter.delete({
+      where: {
+        id: chapterId,
+        Course: {
+          userId,
+        },
+      },
+    });
+    return chapter;
+  } catch (err) {
+    return null;
+  }
+}
